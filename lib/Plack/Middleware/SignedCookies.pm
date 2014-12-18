@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use parent 'Plack::Middleware';
 
-# ABSTRACT: accept only served-minted cookies
+# ABSTRACT: accept only server-minted cookies
 
 use Plack::Util ();
 use Plack::Util::Accessor qw( secret );
