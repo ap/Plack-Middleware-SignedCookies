@@ -1,9 +1,12 @@
-package Plack::Middleware::SignedCookies;
 use 5.010;
 use strict;
-use parent 'Plack::Middleware';
+use warnings;
+
+package Plack::Middleware::SignedCookies;
 
 # ABSTRACT: accept only server-minted cookies
+
+use parent 'Plack::Middleware';
 
 use Plack::Util ();
 use Plack::Util::Accessor qw( secret secure httponly );
