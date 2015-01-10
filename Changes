@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-SignedCookies
 
+1.103 Sat 10 Jan 2015
+	- No functional changes
+	- No longer contains INSTALL file with install-as-root instructions
+
 1.102 Sun 04 Jan 2015
 	- Turned on warnings.
 

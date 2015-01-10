@@ -1,0 +1,80 @@
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Plack::Middleware::SignedCookies - accept only server-minted cookies
+
+=head1 VERSION
+
+version 1.103
+
+=head1 SYNOPSIS
+
+ # in app.psgi
+ use Plack::Builder;
+ 
+ builder {
+     enable 'SignedCookies', secret => 's333333333kr1t!!!!1!!';
+     $app;
+ };
+
+=head1 DESCRIPTION
+
+This middleware modifies C<Cookie> headers in the request and C<Set-Cookie> headers in the response.
+It appends a HMAC digest to outgoing cookies and removes and verifies it from incoming cookies.
+It rejects incoming cookies that were sent without a valid digest.
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item C<secret>
+
+The secret to pass to the L<Digest::SHA> HMAC function.
+
+If not provided, a random secret will be generated using PerlE<rsquo>s built-in L<rand> function.
+
+=item C<secure>
+
+Whether to force the I<secure> flag to be set on all cookies,
+which instructs the browser to only send them when using an encrypted connection.
+
+Defaults to false. B<You should strongly consider overriding this default with a true value.>
+
+=item C<httponly>
+
+Whether to force the I<HttpOnly> flag to be set on all cookies,
+which instructs the browser to not make them available to Javascript on the page.
+
+B<Defaults to true.> Provide a defined false value if you wish to override this.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<RFCE<nbsp>6265, I<HTTP State Management Mechanism>, section 4.1.2.5., I<The Secure Attribute>|http://tools.ietf.org/html/rfc6265#section-4.1.2.5>
+
+=item *
+
+L<MSDN, I<Mitigating Cross-site Scripting With HTTP-only Cookies>|http://msdn.microsoft.com/en-us/library/ms533046.aspx>
+
+=back
+
+=head1 AUTHOR
+
+Aristotle Pagaltzis <pagaltzis@gmx.de>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Aristotle Pagaltzis.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
