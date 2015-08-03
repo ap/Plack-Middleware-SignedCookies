@@ -18,10 +18,7 @@ sub call {
 	my $self = shift;
 	my $env  = shift;
 
-	my $secure   = $self->secure   // do { $self->secure  ( 0 ) };
-	my $httponly = $self->httponly // do { $self->httponly( 1 ) };
-	my $secret   = $self->secret
-		// do { $self->secret( join '', map { chr int rand 256 } 1..17 ) };
+	my $secret = $self->secret;
 
 	local $env->{'HTTP_COOKIE'} =
 		join '; ',
@@ -39,11 +36,17 @@ sub call {
 				my $flags = s/(;.*)// ? $1 : '';
 				s/\A\s+//, s/\s+\z//;
 				$_ .= _hmac( $_, $secret ) . $flags;
-				$_ .= '; secure'   if $secure   and $flags !~ /;\s* secure   \s* (?:;|\z)/ix;
-				$_ .= '; HTTPonly' if $httponly and $flags !~ /;\s* httponly \s* (?:;|\z)/ix;
+				$_ .= '; secure'   if $self->secure   and $flags !~ /;\s* secure   \s* (?:;|\z)/ix;
+				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;\s* httponly \s* (?:;|\z)/ix;
 			}
 		}
 	} );
+}
+
+sub prepare_app {
+	my $self = shift;
+	defined $self->httponly or $self->httponly( 1 );
+	defined $self->secret   or $self->secret  ( join '', map { chr int rand 256 } 1..17 );
 }
 
 1;
