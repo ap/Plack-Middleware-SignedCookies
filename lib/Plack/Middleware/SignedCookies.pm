@@ -10,7 +10,7 @@ use Plack::Util ();
 use Plack::Util::Accessor qw( secret secure httponly );
 use Digest::SHA ();
 
-sub _hmac { y{+/}{-~}, return $_ for Digest::SHA::hmac_sha256_base64( @_[0,1] ) }
+sub _hmac { y{+/}{-~}, return $_ for &Digest::SHA::hmac_sha256_base64 }
 
 my $length = length _hmac 'something', 'something';
 
