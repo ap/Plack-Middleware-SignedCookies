@@ -94,6 +94,21 @@ B<Defaults to true.> Provide a defined false value if you wish to override this.
 
 =back
 
+=head1 A NOTE ON EXPIRATION
+
+Several other modules that offer similar functionality will also handle server-side cookie expiration.
+This is obviously useful for centralising all cookie policy in one place.
+
+However, expiration is quite likely to be a concern at the application level,
+if only just to tell a user that they timed out rather than just suddenly forgetting them.
+Communicating server-side expiration from the middleware to the application requires a protocol.
+No standard protocol exists for this purpose, so it would have to be specific to this middleware.
+
+But middlewares are most useful when they can be added or removed without modifying the application.
+(Frameworks, in contrast, require tight coupling of the application by definition,
+thus making it a reasonable choice to include cookie expiration plus interface in a framework.)
+Therefore, it was an explicit design choice for this middleware to omit expiration handling.
+
 =head1 SEE ALSO
 
 =over 4
