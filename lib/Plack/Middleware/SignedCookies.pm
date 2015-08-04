@@ -23,7 +23,7 @@ sub call {
 	local $env->{'HTTP_COOKIE'} =
 		join '; ',
 		grep { s/(.{$length})\z//o and $1 eq _hmac $_, $secret }
-		map  { defined $_ ? split /\s*[;,]\s*/, $_ : () }
+		map  { defined $_ ? split /\s*+[;,]\s*+/, $_ : () }
 		$env->{'HTTP_COOKIE'};
 
 	delete $env->{'HTTP_COOKIE'} if '' eq $env->{'HTTP_COOKIE'};
@@ -36,8 +36,8 @@ sub call {
 				my $flags = s/(;.*)// ? $1 : '';
 				s/\A\s+//, s/\s+\z//;
 				$_ .= _hmac( $_, $secret ) . $flags;
-				$_ .= '; secure'   if $self->secure   and $flags !~ /;\s* secure   \s* (?:;|\z)/ix;
-				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;\s* httponly \s* (?:;|\z)/ix;
+				$_ .= '; secure'   if $self->secure   and $flags !~ /;\s*+ secure   \s*+ (?![^;])/ix;
+				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;\s*+ httponly \s*+ (?![^;])/ix;
 			}
 		}
 	} );
