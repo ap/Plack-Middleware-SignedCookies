@@ -1,7 +1,7 @@
 use strict;
 no warnings;
 use Plack::Test;
-use Test::More;
+use Test::More tests => 16;
 use HTTP::Request::Common;
 use Plack::Middleware::SignedCookies ();
 use Plack::Request ();
@@ -87,5 +87,3 @@ test_psgi app => $mw->to_app, client => sub {
 	is count_flags( httponly => \%c ), 1, '... and respects a pre-existing HttpOnly flag';
 	is count_flags( secure   => \%c ), 1, '... as well as a pre-existing secure flag';
 };
-
-done_testing;
