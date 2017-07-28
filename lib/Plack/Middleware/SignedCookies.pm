@@ -25,15 +25,13 @@ sub call {
 	my $secret   = $self->secret
 		// do { $self->secret( join '', map { chr int rand 256 } 1..17 ) };
 
-	my $cookie =
+	local $env->{'HTTP_COOKIE'} =
 		join '; ',
 		grep { s/(.{$length})\z//o and $1 eq _hmac $_, $secret }
 		split /\s*[;,]\s*/,
 		$env->{'HTTP_COOKIE'} // '';
 
-	length $cookie
-		? local $env->{'HTTP_COOKIE'} = $cookie
-		: delete local $env->{'HTTP_COOKIE'};
+	delete $env->{'HTTP_COOKIE'} if '' eq $env->{'HTTP_COOKIE'};
 
 	return Plack::Util::response_cb( $self->app->( $env ), sub {
 		my ( $i, $headers ) = ( 0, $_[0][1] );
