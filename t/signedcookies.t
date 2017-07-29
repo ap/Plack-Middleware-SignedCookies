@@ -11,7 +11,7 @@ my ( $_s, $_h );
 my $mw = Plack::Middleware::SignedCookies->new( app => sub {
 	my $req = Plack::Request->new( shift );
 	my $res = $req->new_response( 200 );
-	my $c = $req->cookies // {};
+	my $c = $req->cookies || {};
 	$res->body( join '!', map {; $_, $c->{$_} } sort keys %$c );
 	$res->cookies->{'1foo'} = 'lorem ipsum';
 	$res->cookies->{'2bar'} = { value => 'dolor sit amet', secure => $_s, httponly => $_h };
@@ -30,7 +30,7 @@ sub parse_cookies {
 	return ( $junk, %c );
 }
 
-sub count_flags { my $n = 0; $n += $_ for map { $_->{ $_[0] } // () } values %{ $_[1] }; $n }
+sub count_flags { my $n = 0; $n += $_ for map { $_->{ $_[0] } || () } values %{ $_[1] }; $n }
 
 test_psgi app => $mw->to_app, client => sub {
 	my $cb = shift;

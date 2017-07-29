@@ -1,6 +1,4 @@
-use 5.010;
-use strict;
-use warnings;
+use 5.006; use strict; use warnings;
 
 package Plack::Middleware::SignedCookies;
 
@@ -28,8 +26,8 @@ sub call {
 	local $env->{'HTTP_COOKIE'} =
 		join '; ',
 		grep { s/(.{$length})\z//o and $1 eq _hmac $_, $secret }
-		split /\s*[;,]\s*/,
-		$env->{'HTTP_COOKIE'} // '';
+		map  { defined $_ ? split /\s*[;,]\s*/, $_ : () }
+		$env->{'HTTP_COOKIE'};
 
 	delete $env->{'HTTP_COOKIE'} if '' eq $env->{'HTTP_COOKIE'};
 
@@ -38,9 +36,11 @@ sub call {
 		while ( $i < $#$headers ) {
 			++$i, next if 'set-cookie' ne lc $headers->[$i++];
 			for ( $headers->[$i++] ) {
-				s!\A\s*([^;]+?)\K\s*(?=;|\z)!_hmac $1, $secret!e;
-				$_ .= '; secure'   if $secure   and not /;\s* secure   \s* (?:;|\z)/ix;
-				$_ .= '; HTTPonly' if $httponly and not /;\s* httponly \s* (?:;|\z)/ix;
+				my $flags = s/(;.*)// ? $1 : '';
+				s/\A\s+//, s/\s+\z//;
+				$_ .= _hmac( $_, $secret ) . $flags;
+				$_ .= '; secure'   if $secure   and $flags !~ /;\s* secure   \s* (?:;|\z)/ix;
+				$_ .= '; HTTPonly' if $httponly and $flags !~ /;\s* httponly \s* (?:;|\z)/ix;
 			}
 		}
 	} );
