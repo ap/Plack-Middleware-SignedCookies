@@ -1,5 +1,5 @@
-use strict;
-no warnings;
+use strict; no warnings;
+
 use Plack::Test;
 use Test::More tests => 18;
 use HTTP::Request::Common;

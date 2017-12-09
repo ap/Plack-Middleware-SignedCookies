@@ -15,8 +15,7 @@ sub _hmac { y{+/}{-~}, return $_ for &Digest::SHA::hmac_sha256_base64 }
 my $length = length _hmac 'something', 'something';
 
 sub call {
-	my $self = shift;
-	my $env  = shift;
+	my ( $self, $env ) = ( shift, @_ );
 
 	my $secret = $self->secret;
 
