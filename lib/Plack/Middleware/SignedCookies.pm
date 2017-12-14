@@ -28,16 +28,16 @@ sub call {
 	delete $env->{'HTTP_COOKIE'} if '' eq $env->{'HTTP_COOKIE'};
 
 	return Plack::Util::response_cb( $self->app->( $env ), sub {
-		my ( $i, $headers ) = ( 0, $_[0][1] );
-		while ( $i < $#$headers ) {
-			++$i, next if 'set-cookie' ne lc $headers->[$i++];
-			for ( $headers->[$i++] ) {
+		my $do_sign;
+		for ( @{ $_[0][1] } ) {
+			if ( $do_sign ) {
 				my $flags = s/(;.*)// ? $1 : '';
 				s/\A\s+//, s/\s+\z//;
 				$_ .= _hmac( $_, $secret ) . $flags;
 				$_ .= '; secure'   if $self->secure   and $flags !~ /;\s*+ secure   \s*+ (?![^;])/ix;
 				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;\s*+ httponly \s*+ (?![^;])/ix;
 			}
+			$do_sign = defined $do_sign ? undef : 'set-cookie' eq lc;
 		}
 	} );
 }
