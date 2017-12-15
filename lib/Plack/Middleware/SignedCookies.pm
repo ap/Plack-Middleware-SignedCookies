@@ -21,8 +21,8 @@ sub call {
 
 	local $env->{'HTTP_COOKIE'} =
 		join '; ',
-		grep { s/(.{$length})\z//o and $1 eq _hmac $_, $secret }
-		map  { defined $_ ? split /\s*+[;,]\s*+/, $_ : () }
+		grep { s/[ \t]*+=[ \t]*+/=/; s/(.{$length})\z//o and $1 eq _hmac $_, $secret }
+		map  { defined && /\A[ \t]*+(.*[^ \t])/ ? split /[ \t]*+;[ \t]*+/, "$1" : () }
 		$env->{'HTTP_COOKIE'};
 
 	delete $env->{'HTTP_COOKIE'} if '' eq $env->{'HTTP_COOKIE'};
@@ -32,10 +32,10 @@ sub call {
 		for ( @{ $_[0][1] } ) {
 			if ( $do_sign ) {
 				my $flags = s/(;.*)// ? $1 : '';
-				s/\A\s+//, s/\s+\z//;
+				s/\A[ \t]+//, s/[ \t]+\z//, s/[ \t]*+=[ \t]*+|\z/=/; # normalise
 				$_ .= _hmac( $_, $secret ) . $flags;
-				$_ .= '; secure'   if $self->secure   and $flags !~ /;\s*+ secure   \s*+ (?![^;])/ix;
-				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;\s*+ httponly \s*+ (?![^;])/ix;
+				$_ .= '; secure'   if $self->secure   and $flags !~ /;[ \t]*+ secure   [ \t]*+ (?![^;])/ix;
+				$_ .= '; HTTPonly' if $self->httponly and $flags !~ /;[ \t]*+ httponly [ \t]*+ (?![^;])/ix;
 			}
 			$do_sign = defined $do_sign ? undef : 'set-cookie' eq lc;
 		}

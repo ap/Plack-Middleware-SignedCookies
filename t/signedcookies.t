@@ -6,14 +6,18 @@ use HTTP::Cookies ();
 use HTTP::Request::Common;
 use Plack::Middleware::SignedCookies ();
 
-sub mkck { my $kv = join '=', splice @_, 0, 2; join ';', $kv, @_ }
+sub ws () { join '', map +(' ',"\t")[rand 2], 0 .. rand 10 }
+sub mkck { my $kv = join ws.'='.ws, splice @_, 0, 2; join ';', map ws.$_.ws, $kv, @_ }
 
 my ( $_s, $_h );
 
 my $mw = Plack::Middleware::SignedCookies->new( app => sub {
 	my @h = map +( 'Set-Cookie', $_ ), (
+		mkck( 'c0' ), # missing equals sign
 		mkck( 'cb', 'lorem "ipsum"' ),
-		mkck( 'cx', 'dolor sit amet', ('secure') x !!$_s, ('httponly') x !!$_h ),
+		mkck( 'ch', 'dolor sit\\', ('HTTPONLY') x !!$_h ),
+		mkck( 'cs', 'amet, consectetur', ('SECURE') x !!$_s ),
+		mkck( 'cx', q['adipiscing elit'], ('SECURE') x !!$_s, ('HTTPONLY') x !!$_h ),
 	);
 	[ 200, \@h, [ join ';', sort split / *; */, $_[0]{'HTTP_COOKIE'}, -1 ] ];
 } );
@@ -22,6 +26,7 @@ test_psgi app => $mw->to_app, client => sub {
 	my ( $cb, $jar, $res, $all, $hto, $sec ) = ( shift, HTTP::Cookies->new );
 	my $get = sub {
 		my $req = $jar->add_cookie_header( GET 'http://127.0.0.1/' );
+		$req->header( cookie => join ';', map mkck( split /=/, $_, 2 ), split /;/, $req->header( 'cookie' ) );
 		$jar->extract_cookies( $res = $cb->( $req ) );
 		$_ = [] for $all, $hto, $sec;
 		$jar->scan( sub {
@@ -39,33 +44,33 @@ test_psgi app => $mw->to_app, client => sub {
 	$jar->set_cookie( 0, ( cb => 1 ), '/', '127.0.0.1' );
 	is $get->(), '', 'Unknown cookies ignored in initial request';
 
-	is $all, 'cb!cx', 'Initial response includes exactly the expected cookies';
-	is $hto, 'cb!cx', '... with default HttpOnly flag';
-	is $sec, '',      '... and default secure flag';
+	is $all, 'c0!cb!ch!cs!cx', 'Initial response includes exactly the expected cookies';
+	is $hto, 'c0!cb!ch!cs!cx', '... with default HttpOnly flag';
+	is $sec, '',               '... and default secure flag';
 
-	is $get->(), 'cb=lorem "ipsum";cx=dolor sit amet', 'Own cookies are recognized';
+	is $get->(), 'c0=;cb=lorem "ipsum";ch=dolor sit\\;cs=amet, consectetur;cx=\'adipiscing elit\'', 'Own cookies are recognized';
 
 	$jar->set_cookie( 0, ( cx => 'nonsense' ), '/', '127.0.0.1' );
-	is $get->(), 'cb=lorem "ipsum"', 'Tampered cookies are rejected';
+	is $get->(), 'c0=;cb=lorem "ipsum";ch=dolor sit\\;cs=amet, consectetur', 'Tampered cookies are rejected';
 
 	$mw->secure( 1 );
 	$get->();
-	is $sec, 'cb!cx', 'Setting the secure flag works';
-	is $hto, 'cb!cx', '... with default HttpOnly flag included';
+	is $sec, 'c0!cb!ch!cs!cx', 'Setting the secure flag works';
+	is $hto, 'c0!cb!ch!cs!cx', '... with default HttpOnly flag included';
 
 	$_s = 1;
 	$get->();
-	is $sec, 'cb!cx', '... even when it was already set';
+	is $sec, 'c0!cb!ch!cs!cx', '... even when it was already set';
 	$_s = 0;
 
 	$mw->httponly( 0 );
 	$get->();
-	is $hto, '',      'Disabling the HttpOnly flag works';
-	is $sec, 'cb!cx', '... with the secure flag still set';
+	is $hto, '',               'Disabling the HttpOnly flag works';
+	is $sec, 'c0!cb!ch!cs!cx', '... with the secure flag still set';
 
 	$_h = 1;
 	$get->();
-	is $hto, 'cx', '... and it respects a pre-existing flag';
+	is $hto, 'ch!cx', '... and it respects a pre-existing flag';
 	$_h = 0;
 
 	$mw->secure( 0 );
@@ -74,6 +79,6 @@ test_psgi app => $mw->to_app, client => sub {
 
 	$_s = $_h = 1;
 	$get->();
-	is $hto, 'cx', '... and respects a pre-existing HttpOnly flag';
-	is $sec, 'cx', '... as well as a pre-existing secure flag';
+	is $hto, 'ch!cx', '... and respects a pre-existing HttpOnly flag';
+	is $sec, 'cs!cx', '... as well as a pre-existing secure flag';
 };
