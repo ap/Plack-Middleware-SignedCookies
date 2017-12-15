@@ -10,7 +10,6 @@ requires 'Plack::Util::Accessor';
 
 on test => sub {
 	requires 'HTTP::Request::Common';
-	requires 'Plack::Request';
 	requires 'Plack::Test';
 	requires 'Test::More';
 };
