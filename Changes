@@ -1,5 +1,8 @@
 Revision history for Plack-Middleware-SignedCookies
 
+1.201 Sun 17 Dec 2017
+	- Removal of microöptimsations that require 5.10
+
 1.200 Sat 16 Dec 2017
 	- Correct RFC 6265-compliant parsing and fingerprinting
 	- Easier-to-read formatting of signed cookie values
