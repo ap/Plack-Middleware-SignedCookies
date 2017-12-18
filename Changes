@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-SignedCookies
 
+1.202 Mon 18 Dec 2017
+	- Fix for another accidental 5.10-ism in the tests.
+	  No module code changes.
+
 1.201 Sun 17 Dec 2017
 	- Removal of microöptimsations that require 5.10
 
