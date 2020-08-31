@@ -19,7 +19,7 @@ sub call {
 
 	my $secret = $self->secret;
 
-	local $env->{'HTTP_COOKIE'} =
+	$env->{'HTTP_COOKIE'} =
 		join '; ',
 		grep { s/[ \t]*=[ \t]*/=/; s/[ \t]*([-~A-Za-z0-9]{$length})\z//o and $1 eq _hmac $_, $secret }
 		map  { defined && /\A[ \t]*(.*[^ \t])/s ? split /[ \t]*;[ \t]*/, "$1" : () }
