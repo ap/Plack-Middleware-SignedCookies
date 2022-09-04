@@ -1,4 +1,4 @@
-Revision history for Plack-Middleware-SignedCookies
+Release history for Plack-Middleware-SignedCookies
 
 1.203 Mon 31 Aug 2020
 	- Support for streaming PSGI apps.
