@@ -2,7 +2,7 @@ use 5.006; use strict; use warnings;
 
 package Plack::Middleware::SignedCookies;
 
-our $VERSION = '1.203';
+our $VERSION = '1.204';
 
 BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
