@@ -8,7 +8,7 @@ requires 'Plack::Util';
 requires 'Plack::Util::Accessor';
 
 on test => sub {
-	requires 'HTTP::Cookies';
+	requires 'HTTP::CookieJar::LWP';
 	requires 'HTTP::Request::Common';
 	requires 'Plack::Test';
 	requires 'Test::More';
