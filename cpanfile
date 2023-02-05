@@ -1,7 +1,6 @@
 requires 'perl', '5.006';
 requires 'strict';
 requires 'warnings';
-requires 'parent';
 
 requires 'Digest::SHA';
 requires 'Plack::Middleware';

@@ -4,7 +4,7 @@ package Plack::Middleware::SignedCookies;
 
 # ABSTRACT: accept only server-minted cookies
 
-use parent 'Plack::Middleware';
+BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
 use Plack::Util ();
 use Plack::Util::Accessor qw( secret secure httponly );
