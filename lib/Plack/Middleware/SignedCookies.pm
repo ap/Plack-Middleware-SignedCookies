@@ -2,7 +2,7 @@ use 5.006; use strict; use warnings;
 
 package Plack::Middleware::SignedCookies;
 
-# ABSTRACT: accept only server-minted cookies
+our $VERSION = '1.203';
 
 BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
@@ -56,6 +56,12 @@ sub prepare_app {
 __END__
 
 =pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Plack::Middleware::SignedCookies - accept only server-minted cookies
 
 =head1 SYNOPSIS
 
